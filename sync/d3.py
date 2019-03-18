@@ -1,16 +1,18 @@
-from threading import Lock
+from threading import RLock
 
 a = 0
 
-lock = Lock()
+lock = RLock()
 
-
+# 可重入锁 几次acquire 几次release 才行
 def add():
     global a
     # global lock
     for i in range(1000000):
         lock.acquire()
+        lock.acquire()
         a += 1
+        lock.release()
         lock.release()
 
 
