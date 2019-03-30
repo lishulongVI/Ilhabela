@@ -11,6 +11,8 @@ from selectors import DefaultSelector, EVENT_READ, EVENT_WRITE
 
 selector = DefaultSelector()
 
+flag = False
+
 
 class Fetcher:
     def __init__(self):
@@ -30,11 +32,13 @@ class Fetcher:
             self.data += d
         else:
             selector.unregister(key.fd)
-        data = self.data.decode("utf8")
-        html_data = data.split("\r\n\r\n")[1]
-        print(html_data)
-        pass
-        self.client.close()
+            data = self.data.decode("utf8")
+            html_data = data.split("\r\n\r\n")[1]
+            print(html_data)
+            pass
+            self.client.close()
+            global flag
+            flag = True
 
     def get_url(self, url):
         url = urlparse(url)
@@ -56,16 +60,15 @@ class Fetcher:
 def loop():
     # select 本身不支持register
     # socket状态变化以后的回掉是有程序完成的
-    while True:
+    while flag:
         ready = selector.select()
         for k, v in ready:
             callback = k.data
             callback(k)
 
 
-if __name__ =="__main__":
+if __name__ == "__main__":
     # epool linux
     fet = Fetcher()
     fet.get_url("http:/www.baidu.com")
     loop()
-
